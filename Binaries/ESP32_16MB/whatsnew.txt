@@ -1,0 +1,38 @@
+M5Stack xDripMon v2.0.2 (2026-07-18)
+
+- First boot (and after a factory reset) now asks which data source to
+  use: press A for xDrip (Android) or C for xDrip4iOS. The choice is
+  saved; it is no longer silently defaulted.
+- Boot screen shows both supported apps: "xDrip" (red) and
+  "xDrip4iOS" (blue).
+- Authentication is now shown by the Bluetooth icon instead of a text
+  line that covered the button hints:
+    blinking red  = not connected
+    blinking blue = connected, authenticating
+    steady blue   = connected and authenticated
+
+M5Stack xDripMon v2.0.1 (2026-07-18)
+
+- Bluetooth icon now shows the connection state: blue = connected,
+  blinking red = not connected (status text removed).
+- Button hints above the three buttons on all pages and in the menu
+  (icons switch to - / ok / + while editing a value).
+- New log page (4th page): connections, authentication, readings,
+  time sync, alarms.
+- App naming updated to "xDrip" (Android) everywhere on the device.
+
+M5Stack xDripMon v2.0.0 (2026-07-18)
+
+Complete rewrite - Bluetooth only, no Wi-Fi, no web server.
+
+- NightscoutMon-style interface: main page (big value, trend arrow,
+  mini-graph), big-glucose page, analog clock page.
+- High/low alarms with yellow/red thresholds, warning/alarm sounds,
+  snooze (middle button).
+- On-device configuration menu (hold the middle button): data source,
+  units, thresholds, alarms, brightness, rotation, time, Bluetooth.
+- Two selectable data sources: xDrip (Android) and xDrip4iOS.
+- NimBLE Bluetooth stack (replaces the old Bluedroid stack that limited
+  updates to every 10 minutes).
+
+For 16MB ESP32 M5Stack: Basic 16MB / v2.7, Fire, and all Core2.
