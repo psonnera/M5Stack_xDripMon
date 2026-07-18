@@ -1,3 +1,13 @@
+M5Stack xDripMon v2.0.3 (2026-07-18)
+
+- Factory reset now really clears everything: the data source (xDrip /
+  xDrip4iOS) and all other settings are reset to defaults, and the device
+  asks for the data source again on the next boot. Previously the settings
+  were re-saved during the restart and survived the reset.
+- README documents how the clock behaves across a reset per core and data
+  source (Core2 keeps it via RTC; Basic/Fire lose it and rely on xDrip4iOS
+  re-sync or manual re-entry in xDrip Android mode).
+
 M5Stack xDripMon v2.0.2 (2026-07-18)
 
 - First boot (and after a factory reset) now asks which data source to

@@ -30,6 +30,9 @@ enum : uint8_t {
 };
 
 static bool rebootNeeded = false;
+// set by the factory-reset action so close() skips the config save that would
+// otherwise repopulate the just-cleared NVS
+static bool factoryResetPending = false;
 
 static void fmtGlucose(char *out, size_t len, uint16_t mgdl) {
   if (cfg.isMgdl())
@@ -50,7 +53,8 @@ void Menu::open() {
 void Menu::close() {
   active = false;
   ui.suspended = false;
-  cfg.save();
+  if (!factoryResetPending)
+    cfg.save();
   if (rebootNeeded) {
     M5.Lcd.fillScreen(TFT_BLACK);
     M5.Lcd.setTextDatum(MC_DATUM);
@@ -416,6 +420,7 @@ void Menu::select() {
             p.clear();
             p.end();
           }
+          factoryResetPending = true;
           rebootNeeded = true;
           close();
           return;

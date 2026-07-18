@@ -1,7 +1,7 @@
 [
   {
     "name": "M5Stack xDripMon for 16MB ESP32 (Basic 16MB/v2.7, Fire, all Core2)",
-    "version": "v2.0.2",
+    "version": "v2.0.3",
     "path": "ESP32_16MB",
     "commands": [
       "--chip esp32 --port %port --baud %baud --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m 0x1000 %PATH\\M5Stack_xDripMon.ino.bootloader.bin 0x8000 %PATH\\M5Stack_xDripMon.ino.partitions.bin 0x10000 %PATH\\M5Stack_xDripMon.ino.bin"

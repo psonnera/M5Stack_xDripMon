@@ -81,4 +81,8 @@ void AppConfig::factoryReset() {
   p.begin(NVS_NS, false);
   p.clear();
   p.end();
+  // Reset the in-RAM copy too; otherwise a later save() (e.g. in Menu::close)
+  // would re-persist the stale values over the just-cleared NVS. Leaving NVS
+  // empty is what makes load() report firstRun on the next boot.
+  *this = AppConfig{};
 }

@@ -24,11 +24,23 @@ changeable any time in the menu:
 - **xDrip (Android)** — in xDrip enable:
   `Settings > Smart Watch Features > Mi Band > Use Mi Band` (leave the auth
   key empty) and enable sending the reading as a notification. xDrip finds
-  the device, authenticates and pushes each reading. *(No time sync in this
-  mode: set the clock once in the device menu; Core2 keeps it via RTC.)*
+  the device, authenticates and pushes each reading. This mode has **no time
+  sync** — set the clock in the device menu (see *Time & clock* below).
 - **xDrip4iOS / xdripswift (iOS)** — add a Bluetooth device of type
-  **M5Stack** in the app; pairing, readings, trend and time sync are
-  automatic.
+  **M5Stack** in the app; pairing, readings, trend and time are set
+  automatically (the app pushes the current time on connect).
+
+## Time & clock
+
+Whether the clock survives a reset depends on the core and the data source:
+
+- **Core2** — has a battery-backed RTC, so the clock is kept across resets and
+  power cycles in either mode.
+- **Basic / Fire** — no RTC, so the clock is lost on every reset. Recovery
+  depends on the data source:
+  - **xDrip4iOS** — the time re-syncs automatically once the phone reconnects.
+  - **xDrip (Android)** — no time sync at all; re-enter the clock in the device
+    menu after each reset.
 
 ## Hardware
 
