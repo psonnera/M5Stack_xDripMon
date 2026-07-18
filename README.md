@@ -44,9 +44,9 @@ Arduino IDE or arduino-cli with:
 
 ## History
 
-v1 (in `legacy/`) emulated a LeFun band and was abandoned due to Bluedroid
-Bluetooth-stack issues (readings only every 10 minutes). v2 is a complete
-rewrite on NimBLE with a different xDrip transport.
+v1 emulated a LeFun band and was abandoned due to Bluedroid Bluetooth-stack
+issues (readings only every 10 minutes). v2 is a complete rewrite on NimBLE
+with a different xDrip transport. (The v1 sources remain in git history.)
 
 ## License
 
