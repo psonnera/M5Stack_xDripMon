@@ -201,6 +201,10 @@ static const char *XDRIP_SETUP_QR =
 // Full-screen QR the user scans in xDrip+ (Settings -> Scan QR to load
 // settings). Stays up until button C is pressed or xDrip connects over BLE.
 void showXdripSetupQr() {
+  // dim to 10% while the QR is shown (reduces glare so it scans reliably),
+  // restored to the user's brightness on exit
+  M5.Lcd.setBrightness(map(10, 0, 100, 0, 255));
+
   M5.Lcd.fillScreen(TFT_BLACK);
   M5.Lcd.setTextDatum(MC_DATUM);
   M5.Lcd.setTextSize(1);
@@ -230,6 +234,8 @@ void showXdripSetupQr() {
     if (bleIsConnected()) break;   // xDrip scanned the QR and connected
     delay(10);
   }
+
+  M5.Lcd.setBrightness(map(cfg.brightness, 0, 100, 0, 255));  // restore
 }
 
 void Ui::drawAlarmInfoLine() {
