@@ -1,3 +1,23 @@
+M5Stack xDripMon v2.0.5 (2026-07-19)
+
+- xDrip (Android) setup QR code. When xDrip is chosen at first boot, the
+  device now shows a QR code; scanning it in xDrip+ (Settings -> Scan QR to
+  load settings) enables Mi Band, clears any stale stored device MAC, and
+  sets readings to be sent as notifications - so pairing works in one step
+  with no manual settings hunting. The QR stays up until you press the right
+  button or xDrip connects. Also available any time under
+  Bluetooth -> xDrip setup QR.
+
+M5Stack xDripMon v2.0.4 (2026-07-19)
+
+- xDrip4iOS reconnection watchdog. The iPhone can drift out of Bluetooth
+  range without a clean disconnect, leaving the link silent so the device
+  never reconnected on its own (unlike xDrip Android, which reconnects
+  instantly). Now, in xDrip4iOS mode the device: sends a heartbeat to wake
+  the app when no reading arrives for ~6 minutes; forces a reconnect if the
+  link stays silent for ~11 minutes; and re-arms advertising if it ever
+  stops while disconnected. xDrip (Android) mode is unchanged.
+
 M5Stack xDripMon v2.0.3 (2026-07-18)
 
 - Factory reset now really clears everything: the data source (xDrip /

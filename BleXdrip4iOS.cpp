@@ -19,6 +19,18 @@ static volatile bool advertisePending = false;
 static bool authenticated = false;
 static bool initialStartUpOngoing = true;
 static uint32_t lastTimeRequestMs = 0;
+// reconnection watchdog: seeded on connect, refreshed on every reading
+static uint32_t lastActivityMs = 0;
+static uint32_t lastHeartbeatMs = 0;
+static uint32_t lastAdvCheckMs = 0;
+static volatile uint16_t connHandle = 0;
+
+// data goes stale after ~one missed 5-minute reading -> nudge the app
+#define HEARTBEAT_STALE_MS     (6UL * 60 * 1000)
+#define HEARTBEAT_THROTTLE_MS  (60UL * 1000)
+// ~two missed readings: assume the link is dead and rebuild it
+#define FORCE_RECONNECT_MS     (11UL * 60 * 1000)
+#define ADV_RECHECK_MS         (10UL * 1000)
 // glucose values arrive on 0x10, the slope name separately on 0x13
 static char pendingDir[32] = "";
 
@@ -131,6 +143,7 @@ class CharCallbacks : public NimBLECharacteristicCallbacks {
         time_t utc = (time_t)strtoul(sp + 1, nullptr, 10);
         // readings are intentionally not logged (they would flood the log page)
         gs.onReading((uint16_t)mgdl, utc, nsDirectionToAngle(pendingDir));
+        lastActivityMs = millis();   // feed the reconnection watchdog
       } break;
 
       case 0x12: { // local time epoch seconds
@@ -201,6 +214,9 @@ class CharCallbacks : public NimBLECharacteristicCallbacks {
 class ServerCallbacks : public NimBLEServerCallbacks {
   void onConnect(NimBLEServer *s, NimBLEConnInfo &info) override {
     connected = true;
+    connHandle = info.getConnHandle();
+    lastActivityMs = millis();     // grace period before the watchdog fires
+    lastHeartbeatMs = 0;
     logAdd("connected %s", info.getAddress().toString().c_str());
     gs.dataChanged = true;
   }
@@ -247,6 +263,37 @@ void xdrip4iosTick() {
       millis() - lastTimeRequestMs > 30000UL) {
     lastTimeRequestMs = millis();
     sendToClient("", 0x11);
+  }
+
+  // --- reconnection watchdog ---------------------------------------------
+  // iOS can drift out of range without a clean disconnect: the link goes
+  // silent, no onDisconnect fires, and a returning iPhone never reconnects.
+  uint32_t now = millis();
+
+  if (connected && authenticated) {
+    uint32_t stale = now - lastActivityMs;
+    // nudge xDrip4iOS to refetch and resend a reading (mirrors upstream 0x21)
+    if (stale > HEARTBEAT_STALE_MS && now - lastHeartbeatMs > HEARTBEAT_THROTTLE_MS) {
+      lastHeartbeatMs = now;
+      sendToClient("", 0x21);
+      Serial.println("[ios] heartbeat (stale data)");
+    }
+    // link looks dead: force a disconnect so we re-advertise for a clean reconnect
+    if (stale > FORCE_RECONNECT_MS && server) {
+      logAdd("stale link, forcing reconnect");
+      server->disconnect(connHandle);
+      lastActivityMs = now;        // avoid hammering while the disconnect settles
+    }
+  }
+
+  // safety net: if we are down but advertising silently stopped, re-arm it
+  if (!connected && now - lastAdvCheckMs > ADV_RECHECK_MS) {
+    lastAdvCheckMs = now;
+    NimBLEAdvertising *adv = NimBLEDevice::getAdvertising();
+    if (!adv->isAdvertising()) {
+      adv->start();
+      Serial.println("[ios] advertising (re-armed)");
+    }
   }
 }
 

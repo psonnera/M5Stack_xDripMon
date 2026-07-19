@@ -26,7 +26,7 @@ enum : uint8_t {
   A_ENABLED = 0, A_WLOW, A_ALOW, A_WHIGH, A_AHIGH, A_NOREAD, A_WVOL, A_AVOL,
   A_REPEAT, A_SNOOZE, A_TESTW, A_TESTA, A_BACK, A_COUNT,
   D_BRIGHT = 0, D_ROT, D_TFMT, D_DFMT, D_BACK, D_COUNT,
-  B_RESETPWD = 0, B_FORGETKEY, B_MAC, B_BACK, B_COUNT,
+  B_RESETPWD = 0, B_FORGETKEY, B_MAC, B_QR, B_BACK, B_COUNT,
 };
 
 static bool rebootNeeded = false;
@@ -133,6 +133,7 @@ const char *Menu::itemLabel(int idx) const {
         case B_RESETPWD:  return "Reset iOS password";
         case B_FORGETKEY: return "Forget xDrip pairing";
         case B_MAC:       return "MAC";
+        case B_QR:        return "xDrip setup QR";
         case B_BACK:      return "< Back";
       }
       break;
@@ -452,6 +453,8 @@ void Menu::select() {
         cfg.mibandKeySet = 0;
         memset(cfg.mibandKey, 0, sizeof(cfg.mibandKey));
         cfg.save();
+      } else if (cursor == B_QR) {
+        showXdripSetupQr();
       } else if (cursor == B_BACK) { screen = ROOT; cursor = R_BLUETOOTH; }
       break;
     default: break;

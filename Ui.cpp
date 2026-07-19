@@ -190,6 +190,48 @@ void uiDrawButtonHints(const unsigned char *iconA, const unsigned char *iconB,
   if (iconC) drawIcon(263 - 8, 222, iconC, TFT_DARKGREY);
 }
 
+// xDrip+ "load settings from QR" payload (marker xdpref: + base64(zlib(json))).
+// JSON: {"miband_enabled":"true","miband_data_mac":"",
+//        "miband_send_readings_as_notification":"true"}
+// Enables Mi Band, clears any stored device MAC, and forces readings-as-
+// notification so xDrip+ pairs cleanly with this device.
+static const char *XDRIP_SETUP_QR =
+  "xdpref:eNqrVsrNTErMS4lPzUtMyklNUbJSKikqTVXSgYmnJJYkxucmJgMlEILFqUCiKDUxJTMvvTg+sTg+L78kMy0zObEkMz8PZkQtAPdMIVk=";
+
+// Full-screen QR the user scans in xDrip+ (Settings -> Scan QR to load
+// settings). Stays up until button C is pressed or xDrip connects over BLE.
+void showXdripSetupQr() {
+  M5.Lcd.fillScreen(TFT_BLACK);
+  M5.Lcd.setTextDatum(MC_DATUM);
+  M5.Lcd.setTextSize(1);
+  M5.Lcd.setFreeFont(FSSB12);
+  M5.Lcd.setTextColor(TFT_CYAN, TFT_BLACK);
+  M5.Lcd.drawString("xDrip setup", 160, 12);
+
+  // white quiet zone behind the QR so scanners lock on reliably
+  const int qrW = 150;
+  const int qrX = (320 - qrW) / 2;
+  const int qrY = 28;
+  M5.Lcd.fillRect(qrX - 8, qrY - 8, qrW + 16, qrW + 16, TFT_WHITE);
+  M5.Lcd.qrcode(XDRIP_SETUP_QR, qrX, qrY, qrW, 6);
+
+  M5.Lcd.setFreeFont(FSS9);
+  M5.Lcd.setTextColor(TFT_WHITE, TFT_BLACK);
+  M5.Lcd.drawString("In xDrip+: Settings", 160, qrY + qrW + 14);
+  M5.Lcd.drawString("Scan QR to load settings", 160, qrY + qrW + 32);
+  M5.Lcd.setTextDatum(TL_DATUM);
+
+  uiDrawButtonHints(nullptr, nullptr, nullptr, arrow_right_icon16x16);
+
+  for (;;) {
+    M5.update();
+    bleTick();                     // keep advertising alive while shown
+    if (M5.BtnC.wasClicked()) break;
+    if (bleIsConnected()) break;   // xDrip scanned the QR and connected
+    delay(10);
+  }
+}
+
 void Ui::drawAlarmInfoLine() {
   char tmpStr[12];
   int snoozeRem = alarms.snoozeRemainingMin();

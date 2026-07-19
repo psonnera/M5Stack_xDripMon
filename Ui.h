@@ -58,6 +58,9 @@ private:
 void uiDrawButtonHints(const unsigned char *iconA, const unsigned char *iconB,
                        const char *textB, const unsigned char *iconC);
 
+// Full-screen xDrip+ pairing QR; blocks until button C or an xDrip BLE connect.
+void showXdripSetupQr();
+
 extern Ui ui;
 
 #endif

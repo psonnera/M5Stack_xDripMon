@@ -28,7 +28,7 @@
 #include "Log.h"
 #include "Free_Fonts.h"
 
-#define XDRIPMON_VERSION "2.0.3"
+#define XDRIPMON_VERSION "2.0.5"
 
 static void startupLogo() {
   M5.Lcd.fillScreen(TFT_BLACK);
@@ -98,6 +98,7 @@ void setup() {
   gs.restore();
   timeService.begin();
 
+  bool firstRun = cfg.firstRun;
   if (cfg.firstRun)
     chooseSourceInteractive();
 
@@ -107,6 +108,10 @@ void setup() {
   delay(1500);
 
   bleBegin();
+  // first-time xDrip (Android) setup: show the pairing QR so xDrip+ can enable
+  // Mi Band and clear any stale device MAC (BLE is up so it can auto-dismiss)
+  if (firstRun && cfg.source == SRC_MIBAND)
+    showXdripSetupQr();
   ui.begin();
   ui.requestFullRedraw();
 }
