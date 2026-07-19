@@ -4,7 +4,7 @@ A Bluetooth-only glucose monitor for M5Stack — no Wi-Fi, no web server, no
 cloud. The phone connects directly to the device over BLE and pushes each
 reading.
 
-[[/images/M5Stack_xDrip.jpg|ALT TEXT]]
+<img width="300" src="https://raw.githubusercontent.com/psonnera/M5Stack_xDripMon/refs/heads/main/images/M5Stack_xDrip.jpg">
 
 ## Features
 
