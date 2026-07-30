@@ -1,3 +1,16 @@
+/*
+  BleXdrip4iOS.cpp - "M5Stack" BLE protocol for xDrip4iOS / xdripswift
+  (part of M5Stack xDripMon, GPL v3, see LICENSE)
+
+  Ported from the xDrip4iOS fork of M5_NightscoutMon by Johan Degraeve
+  (github.com/JohanDegraeve/M5_NightscoutMon), GPL v3, itself based on
+  M5_NightscoutMon, Copyright (C) Martin Lukasek <martin@lukasek.cz>.
+  Opcodes and framing match the app-side counterpart in xdripswift /
+  xDrip4iOS, Copyright (C) Johan Degraeve, GPL v3.
+
+  Copyright (C) 2023-2026 Patrick Sonnerat
+*/
+
 #include "BleXdrip4iOS.h"
 #include "AppConfig.h"
 #include "GlucoseState.h"

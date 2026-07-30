@@ -1,3 +1,13 @@
+/*
+  GlucoseState.cpp - glucose readings, history and staleness tracking
+  (part of M5Stack xDripMon, GPL v3, see LICENSE)
+
+  The slope-arrow characters and their angle mapping follow xDrip+
+  (Nightscout Foundation, GPL v3) and M5_NightscoutMon (Martin Lukasek).
+
+  Copyright (C) 2023-2026 Patrick Sonnerat
+*/
+
 #include "GlucoseState.h"
 #include <Preferences.h>
 #include <string.h>

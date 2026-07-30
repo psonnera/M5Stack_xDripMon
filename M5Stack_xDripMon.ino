@@ -20,9 +20,10 @@
   Derived from and referencing other GPL v3 works:
    - M5_NightscoutMon, Copyright (C) Martin Lukasek <martin@lukasek.cz>:
      on-screen UI (main/big/clock/log pages, Ui.cpp), LED strip handling
-     (LedStrip.cpp), and its xDrip4iOS fork by Johan Degraeve for the
-     "M5Stack" BLE protocol (BleXdrip4iOS.cpp). The analog clock face
-     originates from Bodmer's TFT_eSPI TFT_Clock example (via NightscoutMon).
+     (LedStrip.cpp), alarm tone patterns (Alarms.cpp), and its xDrip4iOS
+     fork by Johan Degraeve for the "M5Stack" BLE protocol
+     (BleXdrip4iOS.cpp). The analog clock face originates from Bodmer's
+     TFT_eSPI TFT_Clock example (via NightscoutMon).
    - xDrip+ (Nightscout Foundation): Mi Band 2 protocol UUIDs, auth flow and
      time message layout (BleMiBand.cpp, from watch/miband/*.java, itself
      based on Gadgetbridge), slope-arrow characters (GlucoseState.cpp) and

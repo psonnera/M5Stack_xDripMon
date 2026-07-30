@@ -104,7 +104,8 @@ This firmware reuses and derives from other free-software projects:
 
 - **[M5_NightscoutMon](https://github.com/mlukasek/M5_NightscoutMon)**
   (Martin Lukasek, GPL v3) — the on-screen interface (main, big-glucose,
-  analog-clock and log pages) and the RGB LED strip handling are ported from
+  analog-clock and log pages), the RGB LED strip handling and the alarm tone
+  patterns are ported from
   it; its **[xDrip4iOS fork](https://github.com/JohanDegraeve/M5_NightscoutMon)**
   (Johan Degraeve) is the source of the "M5Stack" BLE protocol
   implementation. The analog clock face originates from Bodmer's TFT_eSPI

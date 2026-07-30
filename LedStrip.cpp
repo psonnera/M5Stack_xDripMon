@@ -1,3 +1,14 @@
+/*
+  LedStrip.cpp - WS2812/NeoPixel strip support (part of M5Stack xDripMon,
+  GPL v3, see LICENSE)
+
+  Ported from M5_NightscoutMon, Copyright (C) Martin Lukasek
+  <martin@lukasek.cz>, GPL v3 (its M5NSconfig LED strip handling).
+  Uses the Adafruit NeoPixel library (LGPL-3.0).
+
+  Copyright (C) 2023-2026 Patrick Sonnerat
+*/
+
 #include "LedStrip.h"
 #include "AppConfig.h"
 #include "GlucoseState.h"

@@ -1,3 +1,14 @@
+/*
+  Alarms.cpp - glucose alarms, sounds and snooze
+  (part of M5Stack xDripMon, GPL v3, see LICENSE)
+
+  The warning/alarm tone patterns and the increasing-snooze behaviour are
+  ported from M5_NightscoutMon (sndWarning/sndAlarm), Copyright (C)
+  Martin Lukasek <martin@lukasek.cz>, GPL v3.
+
+  Copyright (C) 2023-2026 Patrick Sonnerat
+*/
+
 #include "Alarms.h"
 #include "AppConfig.h"
 #include "GlucoseState.h"

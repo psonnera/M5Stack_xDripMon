@@ -1,3 +1,17 @@
+/*
+  Ui.cpp - on-screen interface (part of M5Stack xDripMon, GPL v3, see LICENSE)
+
+  Derived from M5_NightscoutMon, Copyright (C) Martin Lukasek
+  <martin@lukasek.cz>, GPL v3: page layout (main / big-glucose / clock
+  pages), icon blitter, trend arrow and mini-graph rendering. The analog
+  clock face originates from Bodmer's TFT_eSPI "TFT_Clock" example (via
+  NightscoutMon). The settings-QR payload format follows xDrip+
+  (Nightscout Foundation, GPL v3). Icons: iot_iconset_16x16.c by
+  Artur Funk, GPL v3.
+
+  Copyright (C) 2023-2026 Patrick Sonnerat
+*/
+
 #include "Ui.h"
 #include "AppConfig.h"
 #include "GlucoseState.h"

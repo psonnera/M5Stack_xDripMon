@@ -1,3 +1,17 @@
+/*
+  BleMiBand.cpp - Mi Band 2 emulation for xDrip+ (Android)
+  (part of M5Stack xDripMon, GPL v3, see LICENSE)
+
+  The protocol implemented here - service/characteristic UUIDs, the AES
+  authentication flow, notification parsing and the Current Time layout -
+  is derived from xDrip+ (Nightscout Foundation, GPL v3), specifically
+  watch/miband/*.java (Const.java, OperationCodes.java, TimeMessage.java),
+  which in turn documents the Huami protocol as reverse-engineered by the
+  Gadgetbridge project. AES via mbedTLS (Apache-2.0, part of ESP-IDF).
+
+  Copyright (C) 2023-2026 Patrick Sonnerat
+*/
+
 #include "BleMiBand.h"
 #include "AppConfig.h"
 #include "GlucoseState.h"

@@ -1,3 +1,9 @@
+// Free_Fonts.h from Bodmer's TFT_eSPI library examples
+// (https://github.com/Bodmer/TFT_eSPI), included here via M5_NightscoutMon
+// (Martin Lukasek). The GFX FreeFonts it references derive from the GNU
+// FreeFont project; see the TFT_eSPI repository for license details.
+// Original header follows unmodified:
+
 // Attach this header file to your sketch to use the GFX Free Fonts. You can write
 // sketches without it, but it makes referencing them easier.
 
