@@ -11,8 +11,13 @@
 
 // selectable data pins
 #define LED_PIN_INTERNAL 15   // M5Stack Fire built-in 10-LED side bars
+#define LED_PIN_PORT_A   21   // Basic/Fire Grove port (shared with internal I2C)
+#define LED_PIN_PORT_A_C2 32  // Core2 Port A
 #define LED_PIN_PORT_B   26
 #define LED_PIN_PORT_C   17
+
+// Port A sits on different GPIOs per board family
+uint8_t ledPortAPin();
 
 // External RGB LED strip (WS2812/NeoPixel) or the Fire's built-in bars,
 // ported from M5_NightscoutMon. Colours follow the alarm state (red/amber)

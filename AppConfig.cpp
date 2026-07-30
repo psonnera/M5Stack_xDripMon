@@ -1,4 +1,5 @@
 #include "AppConfig.h"
+#include "Log.h"
 #include <Preferences.h>
 
 AppConfig cfg;
@@ -50,38 +51,47 @@ void AppConfig::load() {
 void AppConfig::save() {
   Preferences p;
   p.begin(NVS_NS, false);
-  p.putUShort("ver", CFG_VERSION);
-  p.putUChar("src", source);
-  p.putUChar("units", units);
-  p.putUShort("ylo", yellowLow);
-  p.putUShort("yhi", yellowHigh);
-  p.putUShort("rlo", redLow);
-  p.putUShort("rhi", redHigh);
-  p.putUChar("aen", alarmsEnabled);
-  p.putUShort("swlo", warnLow);
-  p.putUShort("salo", alarmLow);
-  p.putUShort("swhi", warnHigh);
-  p.putUShort("sahi", alarmHigh);
-  p.putUShort("snor", noReadingsMin);
-  p.putUChar("wvol", warnVolume);
-  p.putUChar("avol", alarmVolume);
-  p.putUChar("arep", alarmRepeatMin);
-  p.putUChar("snoz", snoozeMin);
-  p.putUChar("bri", brightness);
-  p.putUChar("rot", rotation);
-  p.putUChar("tfmt", timeFormat24);
-  p.putUChar("dfmt", dateFormatDMY);
-  p.putUChar("lmode", ledMode);
-  p.putUChar("lpin", ledPin);
-  p.putUChar("lcnt", ledCount);
-  p.putUChar("lbri", ledBright);
-  p.putInt("tzof", tzOffsetSec);
-  p.putString("blepwd", blePassword);
+  // put* returns 0 on failure (e.g. NVS out of space); a silently dropped
+  // write looks like "settings don't save" to the user, so surface it
+  int failed = 0;
+  auto chk = [&failed](size_t written) { if (written == 0) failed++; };
+  chk(p.putUShort("ver", CFG_VERSION));
+  chk(p.putUChar("src", source));
+  chk(p.putUChar("units", units));
+  chk(p.putUShort("ylo", yellowLow));
+  chk(p.putUShort("yhi", yellowHigh));
+  chk(p.putUShort("rlo", redLow));
+  chk(p.putUShort("rhi", redHigh));
+  chk(p.putUChar("aen", alarmsEnabled));
+  chk(p.putUShort("swlo", warnLow));
+  chk(p.putUShort("salo", alarmLow));
+  chk(p.putUShort("swhi", warnHigh));
+  chk(p.putUShort("sahi", alarmHigh));
+  chk(p.putUShort("snor", noReadingsMin));
+  chk(p.putUChar("wvol", warnVolume));
+  chk(p.putUChar("avol", alarmVolume));
+  chk(p.putUChar("arep", alarmRepeatMin));
+  chk(p.putUChar("snoz", snoozeMin));
+  chk(p.putUChar("bri", brightness));
+  chk(p.putUChar("rot", rotation));
+  chk(p.putUChar("tfmt", timeFormat24));
+  chk(p.putUChar("dfmt", dateFormatDMY));
+  chk(p.putUChar("lmode", ledMode));
+  chk(p.putUChar("lpin", ledPin));
+  chk(p.putUChar("lcnt", ledCount));
+  chk(p.putUChar("lbri", ledBright));
+  chk(p.putInt("tzof", tzOffsetSec));
+  if (blePassword[0])                  // putString returns 0 for "" even on success
+    chk(p.putString("blepwd", blePassword));
+  else
+    p.putString("blepwd", blePassword);
   if (mibandKeySet)
-    p.putBytes("mbkey", mibandKey, sizeof(mibandKey));
+    chk(p.putBytes("mbkey", mibandKey, sizeof(mibandKey)));
   else
     p.remove("mbkey");
   p.end();
+  if (failed)
+    logAdd("config save FAILED (%d keys)", failed);
 }
 
 void AppConfig::factoryReset() {

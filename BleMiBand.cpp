@@ -1,6 +1,7 @@
 #include "BleMiBand.h"
 #include "AppConfig.h"
 #include "GlucoseState.h"
+#include "TimeService.h"
 #include "Ui.h"
 #include "Log.h"
 #include <NimBLEDevice.h>
@@ -212,6 +213,52 @@ class BatteryCallbacks : public NimBLECharacteristicCallbacks {
   }
 };
 
+// Mi Band 2 current-time layout (xDrip TimeMessage / Gadgetbridge):
+// [0-1] year LE, [2] month 1-12, [3] day, [4] hour, [5] minute, [6] second,
+// [7] day of week, [8] fractions256, [9] adjust reason, [10] constant 0x0C.
+// Bytes 0-6 carry the phone's local wall time; there is no usable timezone
+// byte, so the stored tz offset applies (same as manual entry in the menu).
+// Note: current xDrip+ never writes this - the handler is here for any client
+// (or future xDrip+) that does.
+class CurrentTimeCallbacks : public NimBLECharacteristicCallbacks {
+  void onWrite(NimBLECharacteristic *chr, NimBLEConnInfo &info) override {
+    NimBLEAttValue v = chr->getValue();
+    const uint8_t *d = v.data();
+    size_t len = v.length();
+    Serial.printf("[miband] current time write, %u bytes:", (unsigned)len);
+    for (size_t i = 0; i < len; i++) Serial.printf(" %02X", d[i]);
+    Serial.println();
+    if (len < 7) return;
+    int year = d[0] | (d[1] << 8);
+    int month = d[2], day = d[3], hour = d[4], minute = d[5], second = d[6];
+    if (year < 2024 || year > 2099 || month < 1 || month > 12 ||
+        day < 1 || day > 31 || hour > 23 || minute > 59 || second > 59) {
+      Serial.println("[miband] implausible time, ignored");
+      return;
+    }
+    timeService.setManual(year, month, day, hour, minute, second);
+    logAdd("time set from phone");
+  }
+  void onRead(NimBLECharacteristic *chr, NimBLEConnInfo &info) override {
+    uint8_t b[11] = {0};
+    struct tm t;
+    if (timeService.getLocalTm(t)) {
+      int year = t.tm_year + 1900;
+      b[0] = (uint8_t)(year & 0xFF);
+      b[1] = (uint8_t)(year >> 8);
+      b[2] = (uint8_t)(t.tm_mon + 1);
+      b[3] = (uint8_t)t.tm_mday;
+      b[4] = (uint8_t)t.tm_hour;
+      b[5] = (uint8_t)t.tm_min;
+      b[6] = (uint8_t)t.tm_sec;
+      b[7] = (uint8_t)(t.tm_wday == 0 ? 7 : t.tm_wday);   // 1=Mon .. 7=Sun
+      b[9] = 0x01;
+      b[10] = 0x0C;
+    }
+    chr->setValue(b, sizeof(b));
+  }
+};
+
 // ---------------------------------------------------------------- server
 
 class ServerCallbacks : public NimBLEServerCallbacks {
@@ -264,7 +311,7 @@ void miBandBegin() {
       ->setCallbacks(new IgnoreCallbacks());
   fee0->createCharacteristic(UUID_CHR_CURR_TIME,
                  NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE)
-      ->setCallbacks(new IgnoreCallbacks());
+      ->setCallbacks(new CurrentTimeCallbacks());
 
   // auth service
   NimBLEService *fee1 = server->createService(UUID_SVC_MIBAND2);

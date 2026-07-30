@@ -1,3 +1,22 @@
+M5Stack xDripMon v2.0.7 (2026-07-30)
+
+- LED strip can now use Grove Port A: the pin setting cycles through
+  15 internal / 21 Port A / 26 Port B / 17 Port C (on Core2 the Port A
+  option is pin 32, matching its connector). Port A is the only Grove
+  port on a Basic without an M5GO bottom.
+- Settings are now written to flash the moment a value is confirmed,
+  not only when leaving the menu - a reset or power cut with the menu
+  still open no longer loses changes (reported as "LED mode does not
+  save"). If a flash write ever fails, the log page now shows
+  "config save FAILED" instead of losing settings silently.
+- Mi Band time sync implemented (Current Time characteristic): if the
+  connected app writes the time, the clock is set automatically. Note
+  that current xDrip+ (Android) never sends the time over the Mi Band
+  protocol, so in xDrip (Android) mode the clock must still be set once
+  in Menu -> Set time (Core2 keeps it across power cycles via its RTC;
+  Basic/Fire keep it only while powered). xDrip4iOS sets the clock
+  automatically as before.
+
 M5Stack xDripMon v2.0.6 (2026-07-30)
 
 - RGB LED strip support, ported from M5_NightscoutMon. An external

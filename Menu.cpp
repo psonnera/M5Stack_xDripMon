@@ -221,9 +221,11 @@ void Menu::valueString(int idx, char *out, size_t len) const {
           strlcpy(out, modes[cfg.ledMode & 3], len);
         } break;
         case L_PIN:
-          strlcpy(out, cfg.ledPin == LED_PIN_PORT_B ? "26 Port B" :
-                       cfg.ledPin == LED_PIN_PORT_C ? "17 Port C" :
-                                                      "15 internal", len);
+          strlcpy(out, cfg.ledPin == LED_PIN_PORT_A    ? "21 Port A" :
+                       cfg.ledPin == LED_PIN_PORT_A_C2 ? "32 Port A" :
+                       cfg.ledPin == LED_PIN_PORT_B    ? "26 Port B" :
+                       cfg.ledPin == LED_PIN_PORT_C    ? "17 Port C" :
+                                                         "15 internal", len);
           break;
         case L_NUM:    snprintf(out, len, "%u", cfg.ledCount); break;
         case L_BRIGHT: snprintf(out, len, "%u%%", cfg.ledBright); break;
@@ -401,12 +403,14 @@ void Menu::applyEdit(int dir) {
           leds.applyConfig();
           break;
         case L_PIN: {
-          // cycle the safe pins only; Port A (21/22) is the I2C bus
-          static const uint8_t pins[] = {LED_PIN_INTERNAL, LED_PIN_PORT_B, LED_PIN_PORT_C};
+          // Port A GPIO depends on the board (21 Basic/Fire, 32 Core2)
+          const uint8_t pins[] = {LED_PIN_INTERNAL, ledPortAPin(),
+                                  LED_PIN_PORT_B, LED_PIN_PORT_C};
+          const int n = sizeof(pins);
           int i = 0;
-          for (int k = 0; k < 3; k++)
+          for (int k = 0; k < n; k++)
             if (pins[k] == cfg.ledPin) i = k;
-          cfg.ledPin = pins[(i + dir + 3) % 3];
+          cfg.ledPin = pins[(i + dir + n) % n];
           leds.applyConfig();
         } break;
         case L_NUM: {
@@ -440,14 +444,19 @@ void Menu::select() {
     return;
   }
 
-  if (editing) { editing = false; draw(); return; }
+  // persist as soon as a value is committed, not only on menu exit - a reset
+  // or power cut with the menu still open must not lose confirmed edits
+  if (editing) { editing = false; cfg.save(); draw(); return; }
   if (itemEditable(cursor)) {
     if (screen == ROOT && (cursor == R_SOURCE || cursor == R_UNITS)) {
       applyEdit(1);            // simple toggles - no edit mode needed
+      cfg.save();
     } else if (screen == ALARMS_S && cursor == A_ENABLED) {
       applyEdit(1);
+      cfg.save();
     } else if (screen == DISPLAY_S && (cursor == D_ROT || cursor == D_TFMT || cursor == D_DFMT)) {
       applyEdit(1);
+      cfg.save();
     } else {
       editing = true;
     }
@@ -538,7 +547,8 @@ void Menu::select() {
 
 void Menu::back() {
   if (screen == TIME_S) { screen = ROOT; cursor = R_TIME; draw(); return; }
-  if (editing) { editing = false; draw(); return; }
+  // leaving edit mode keeps the edited value, so persist it too
+  if (editing) { editing = false; cfg.save(); draw(); return; }
   if (screen != ROOT) { screen = ROOT; cursor = 0; draw(); return; }
   close();
 }

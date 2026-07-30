@@ -9,7 +9,8 @@ public:
   void begin();                                   // restore from RTC (Core2) + stored tz
   void setFromUtc(time_t utc, int32_t tzSec);     // e.g. xDrip4iOS 0x12/0x14
   void setFromLocal(time_t localEpoch, int32_t tzSec); // local wall time known, tz optional
-  void setManual(int year, int month, int day, int hour, int minute); // menu entry
+  void setManual(int year, int month, int day, int hour, int minute,
+                 int second = 0);               // menu entry, Mi Band 2A2B
   bool known() const { return timeKnown; }
   bool getLocalTm(struct tm &out);                // false if time unknown
 

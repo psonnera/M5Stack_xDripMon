@@ -10,6 +10,16 @@ LedStrip leds;
 // module-private: no other file touches the pixel object
 static Adafruit_NeoPixel pixels(10, LED_PIN_INTERNAL, NEO_GRB + NEO_KHZ800);
 
+// On Basic/Fire Port A is G21/G22; on Core2 it is G32/G33 (G21/G22 drive the
+// AXP192 there). G21 is shared with the internal I2C bus (IP5306 battery
+// gauge) on Basic/Fire, but strip writes and I2C polls both run sequentially
+// from loop(), so they never overlap - same trade-off UiFlow makes for RGB
+// units on Port A.
+uint8_t ledPortAPin() {
+  return M5.getBoard() == m5::board_t::board_M5StackCore2 ? LED_PIN_PORT_A_C2
+                                                          : LED_PIN_PORT_A;
+}
+
 // GPIO15 is the Fire's LED bar, but the LCD D/C line on Core2 - never drive
 // it there. External port pins (26/17) are safe on every core.
 bool LedStrip::hwOk() const {

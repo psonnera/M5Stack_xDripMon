@@ -29,7 +29,7 @@
 #include "Log.h"
 #include "Free_Fonts.h"
 
-#define XDRIPMON_VERSION "2.0.6"
+#define XDRIPMON_VERSION "2.0.7"
 
 static void startupLogo() {
   M5.Lcd.fillScreen(TFT_BLACK);

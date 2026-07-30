@@ -81,7 +81,8 @@ void TimeService::setFromLocal(time_t localEpoch, int32_t tzSec) {
   setFromUtc(localEpoch - tzSec, tzSec);
 }
 
-void TimeService::setManual(int year, int month, int day, int hour, int minute) {
+void TimeService::setManual(int year, int month, int day, int hour, int minute,
+                            int second) {
   // Entered value is local wall time; convert to UTC using the stored offset.
   struct tm t = {};
   t.tm_year = year - 1900;
@@ -89,6 +90,7 @@ void TimeService::setManual(int year, int month, int day, int hour, int minute) 
   t.tm_mday = day;
   t.tm_hour = hour;
   t.tm_min  = minute;
+  t.tm_sec  = second;
   time_t asIfUtc = epochFromUtcTm(t);
   setFromUtc(asIfUtc - cfg.tzOffsetSec, cfg.tzOffsetSec);
 }
