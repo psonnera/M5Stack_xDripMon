@@ -21,6 +21,7 @@
 #include "GlucoseState.h"
 #include "TimeService.h"
 #include "Alarms.h"
+#include "LedStrip.h"
 #include "Ui.h"
 #include "Menu.h"
 #include "BleController.h"
@@ -28,7 +29,7 @@
 #include "Log.h"
 #include "Free_Fonts.h"
 
-#define XDRIPMON_VERSION "2.0.5"
+#define XDRIPMON_VERSION "2.0.6"
 
 static void startupLogo() {
   M5.Lcd.fillScreen(TFT_BLACK);
@@ -94,6 +95,7 @@ void setup() {
   cfg.load();
   M5.Lcd.setRotation(cfg.rotation);
   M5.Lcd.setBrightness(map(cfg.brightness, 0, 100, 0, 255));
+  leds.begin();
 
   gs.restore();
   timeService.begin();
@@ -105,7 +107,10 @@ void setup() {
   logAdd("boot v" XDRIPMON_VERSION " (%s)", bleModeName());
 
   startupLogo();
-  delay(1500);
+  if (cfg.ledMode != LED_MODE_OFF)
+    leds.bootAnimation();   // strip self-test (~1.8 s) replaces the logo pause
+  else
+    delay(1500);
 
   bleBegin();
   // first-time xDrip (Android) setup: show the pairing QR so xDrip+ can enable
@@ -144,6 +149,7 @@ void loop() {
 
   debugInjectPoll();
   alarms.tick();
+  leds.tick();
   ui.tick();
   bleTick();
   delay(10);

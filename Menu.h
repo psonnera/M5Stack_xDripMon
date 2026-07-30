@@ -13,7 +13,7 @@ public:
   void handleButtons();   // call from loop while active
 
 private:
-  enum Screen : uint8_t { ROOT, THRESHOLDS, ALARMS_S, DISPLAY_S, TIME_S, BLUETOOTH_S };
+  enum Screen : uint8_t { ROOT, THRESHOLDS, ALARMS_S, DISPLAY_S, TIME_S, BLUETOOTH_S, LED_S };
   void draw();
   void drawTimeEditor();
   void select();

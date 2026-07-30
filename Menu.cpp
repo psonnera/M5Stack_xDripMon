@@ -3,6 +3,7 @@
 #include "GlucoseState.h"
 #include "TimeService.h"
 #include "Alarms.h"
+#include "LedStrip.h"
 #include "Ui.h"
 #include <M5Unified.h>
 #include <Preferences.h>
@@ -21,12 +22,13 @@ extern "C" {
 
 // item ids per screen
 enum : uint8_t {
-  R_SOURCE, R_UNITS, R_THRESH, R_ALARMS, R_DISPLAY, R_TIME, R_BLUETOOTH, R_FACTORY, R_EXIT, R_COUNT,
+  R_SOURCE, R_UNITS, R_THRESH, R_ALARMS, R_DISPLAY, R_LED, R_TIME, R_BLUETOOTH, R_FACTORY, R_EXIT, R_COUNT,
   T_YLOW = 0, T_YHIGH, T_RLOW, T_RHIGH, T_BACK, T_COUNT,
   A_ENABLED = 0, A_WLOW, A_ALOW, A_WHIGH, A_AHIGH, A_NOREAD, A_WVOL, A_AVOL,
   A_REPEAT, A_SNOOZE, A_TESTW, A_TESTA, A_BACK, A_COUNT,
   D_BRIGHT = 0, D_ROT, D_TFMT, D_DFMT, D_BACK, D_COUNT,
   B_RESETPWD = 0, B_FORGETKEY, B_MAC, B_QR, B_BACK, B_COUNT,
+  L_MODE = 0, L_PIN, L_NUM, L_BRIGHT, L_TEST, L_BACK, L_ITEMS,
 };
 
 static bool rebootNeeded = false;
@@ -74,6 +76,7 @@ int Menu::itemCount() const {
     case ALARMS_S:    return A_COUNT;
     case DISPLAY_S:   return D_COUNT;
     case BLUETOOTH_S: return B_COUNT;
+    case LED_S:       return L_ITEMS;
     default:          return 0;
   }
 }
@@ -87,6 +90,7 @@ const char *Menu::itemLabel(int idx) const {
         case R_THRESH:    return "Color thresholds";
         case R_ALARMS:    return "Alarms";
         case R_DISPLAY:   return "Display";
+        case R_LED:       return "LED strip";
         case R_TIME:      return "Set time";
         case R_BLUETOOTH: return "Bluetooth";
         case R_FACTORY:   return "Factory reset";
@@ -137,6 +141,16 @@ const char *Menu::itemLabel(int idx) const {
         case B_BACK:      return "< Back";
       }
       break;
+    case LED_S:
+      switch (idx) {
+        case L_MODE:   return "Mode";
+        case L_PIN:    return "Pin";
+        case L_NUM:    return "LED count";
+        case L_BRIGHT: return "Brightness";
+        case L_TEST:   return "Test";
+        case L_BACK:   return "< Back";
+      }
+      break;
     default: break;
   }
   return "";
@@ -148,6 +162,7 @@ bool Menu::itemEditable(int idx) const {
     case THRESHOLDS: return idx != T_BACK;
     case ALARMS_S:   return idx < A_TESTW;
     case DISPLAY_S:  return idx != D_BACK;
+    case LED_S:      return idx <= L_BRIGHT;
     default:         return false;
   }
 }
@@ -199,6 +214,21 @@ void Menu::valueString(int idx, char *out, size_t len) const {
       else if (idx == B_FORGETKEY)
         strlcpy(out, cfg.mibandKeySet ? "paired" : "none", len);
       break;
+    case LED_S:
+      switch (idx) {
+        case L_MODE: {
+          static const char *modes[] = {"off", "sound", "alerts", "always on"};
+          strlcpy(out, modes[cfg.ledMode & 3], len);
+        } break;
+        case L_PIN:
+          strlcpy(out, cfg.ledPin == LED_PIN_PORT_B ? "26 Port B" :
+                       cfg.ledPin == LED_PIN_PORT_C ? "17 Port C" :
+                                                      "15 internal", len);
+          break;
+        case L_NUM:    snprintf(out, len, "%u", cfg.ledCount); break;
+        case L_BRIGHT: snprintf(out, len, "%u%%", cfg.ledBright); break;
+      }
+      break;
     default: break;
   }
 }
@@ -216,6 +246,7 @@ void Menu::draw() {
     case ALARMS_S:    title = "Alarms"; break;
     case DISPLAY_S:   title = "Display"; break;
     case BLUETOOTH_S: title = "Bluetooth"; break;
+    case LED_S:       title = "LED strip"; break;
     default: break;
   }
   M5.Lcd.drawString(title, 4, 2);
@@ -363,6 +394,35 @@ void Menu::applyEdit(int dir) {
         case D_DFMT: cfg.dateFormatDMY = !cfg.dateFormatDMY; break;
       }
       break;
+    case LED_S:
+      switch (cursor) {
+        case L_MODE:
+          cfg.ledMode = (uint8_t)((cfg.ledMode + dir + 4) % 4);
+          leds.applyConfig();
+          break;
+        case L_PIN: {
+          // cycle the safe pins only; Port A (21/22) is the I2C bus
+          static const uint8_t pins[] = {LED_PIN_INTERNAL, LED_PIN_PORT_B, LED_PIN_PORT_C};
+          int i = 0;
+          for (int k = 0; k < 3; k++)
+            if (pins[k] == cfg.ledPin) i = k;
+          cfg.ledPin = pins[(i + dir + 3) % 3];
+          leds.applyConfig();
+        } break;
+        case L_NUM: {
+          int nv = (int)cfg.ledCount + dir;
+          if (nv >= 1 && nv <= 144) {
+            cfg.ledCount = (uint8_t)nv;
+            leds.applyConfig();
+          }
+        } break;
+        case L_BRIGHT: {
+          int nv = (int)cfg.ledBright + dir * 5;
+          // floor of 5%: full brightness on long strips browns out the board
+          if (nv >= 5 && nv <= 100) cfg.ledBright = (uint8_t)nv;
+        } break;
+      }
+      break;
     default: break;
   }
 }
@@ -401,6 +461,7 @@ void Menu::select() {
         case R_THRESH:    screen = THRESHOLDS; cursor = 0; break;
         case R_ALARMS:    screen = ALARMS_S; cursor = 0; break;
         case R_DISPLAY:   screen = DISPLAY_S; cursor = 0; break;
+        case R_LED:       screen = LED_S; cursor = 0; break;
         case R_BLUETOOTH: screen = BLUETOOTH_S; cursor = 0; break;
         case R_TIME: {
           struct tm t;
@@ -436,10 +497,18 @@ void Menu::select() {
     case ALARMS_S:
       if (cursor == A_TESTW) { alarms.clearSnooze(); /* audible check */
         M5.Speaker.setVolume(map(cfg.warnVolume, 0, 100, 0, 255));
-        for (int j = 0; j < 3; j++) { M5.Speaker.tone(3000, 100); delay(400); }
+        for (int j = 0; j < 3; j++) {
+          leds.flashFill(false);
+          M5.Speaker.tone(3000, 100); delay(400);
+          leds.flashClear();
+        }
       } else if (cursor == A_TESTA) {
         M5.Speaker.setVolume(map(cfg.alarmVolume, 0, 100, 0, 255));
-        for (int j = 0; j < 2; j++) { M5.Speaker.tone(660, 400); delay(600); }
+        for (int j = 0; j < 2; j++) {
+          leds.flashFill(true);
+          M5.Speaker.tone(660, 400); delay(600);
+          leds.flashClear();
+        }
       } else if (cursor == A_BACK) { screen = ROOT; cursor = R_ALARMS; }
       break;
     case DISPLAY_S:
@@ -456,6 +525,11 @@ void Menu::select() {
       } else if (cursor == B_QR) {
         showXdripSetupQr();
       } else if (cursor == B_BACK) { screen = ROOT; cursor = R_BLUETOOTH; }
+      break;
+    case LED_S:
+      if (cursor == L_TEST) {
+        leds.bootAnimation();   // no-op while the mode is off
+      } else if (cursor == L_BACK) { screen = ROOT; cursor = R_LED; }
       break;
     default: break;
   }

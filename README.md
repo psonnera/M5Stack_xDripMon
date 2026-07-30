@@ -17,6 +17,9 @@ reading.
   no web configuration needed.
 - Bluetooth icon shows the link state: blinking red = not connected,
   blinking blue = connecting/authenticating, steady blue = authenticated.
+- Optional RGB LED strip (or the Fire's built-in LED bars): flash with the
+  alarm sounds, light up on warnings/alarms, or follow the glucose colour
+  permanently (see *LED strip* below).
 
 ## Data sources
 
@@ -50,11 +53,37 @@ Whether the clock survives a reset depends on the core and the data source:
 for all (`Binaries/ESP32_16MB`, layout compatible with M5_NightscoutMon
 flashing tools). See `TESTING.md` for the esptool command and test guide.
 
+## LED strip (optional)
+
+An external WS2812/NeoPixel strip — or the Fire's built-in 10-LED side
+bars — can mirror the glucose state. Everything is configured on the device
+in *Menu → LED strip*:
+
+- **Mode** — `off` (default), `sound` (flash red/amber in sync with the
+  alarm and warning tones), `alerts` (steady red/amber while a warning or
+  alarm is active, dark otherwise; snooze turns it off), `always on`
+  (alerts, plus the glucose colour when in range: green / amber / red
+  following the colour thresholds, dim grey when the data is stale).
+- **Pin** — `15 internal` (Fire's built-in bars; Fire only), `26 Port B`
+  or `17 Port C` for an external strip. Port A is not offered — it is the
+  I2C bus (GPIO 21/22).
+- **LED count** — 10 for the Fire bars; typical strips: 15 = 10 cm,
+  29 = 20 cm, 72 = 50 cm, 144 = 100 cm.
+- **Brightness** — 5–100 %. Keep 5–10 % for more than 10 LEDs or power the
+  strip externally: at high brightness the load current can brown out the
+  M5Stack.
+- **Test** — plays the boot animation (red/amber/green/blue sweep, also
+  shown at power-on whenever the mode is not off).
+
+Wiring an external strip: GND and 5 V from the Grove port, data to the
+port's signal pin (Port B = GPIO 26, Port C = GPIO 17).
+
 ## Building
 
 Arduino IDE or arduino-cli with:
 - board package **M5Stack 2.1.1** (targets M5Core / M5Fire / M5Core2)
-- libraries **M5Unified** (with M5GFX) and **NimBLE-Arduino 2.x**
+- libraries **M5Unified** (with M5GFX), **NimBLE-Arduino 2.x** and
+  **Adafruit NeoPixel**
 
 ## History
 

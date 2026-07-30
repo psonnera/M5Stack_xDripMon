@@ -1,3 +1,14 @@
+M5Stack xDripMon v2.0.6 (2026-07-30)
+
+- RGB LED strip support, ported from M5_NightscoutMon. An external
+  WS2812/NeoPixel strip (Grove Port B or C) or the Fire's built-in LED
+  bars can flash with the alarm sounds, light red/amber while a warning
+  or alarm is active, or stay lit following the glucose colour (green /
+  amber / red per the colour thresholds, dim grey when the data is
+  stale). Configured entirely on the device in the new
+  Menu -> LED strip page (mode, pin, LED count, brightness, test);
+  default is off. A colour sweep at power-on doubles as a self-test.
+
 M5Stack xDripMon v2.0.5 (2026-07-19)
 
 - xDrip (Android) setup QR code. When xDrip is chosen at first boot, the

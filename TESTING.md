@@ -51,6 +51,22 @@ Check: value/colour/arrow on all three pages, graph dots, min-ago box turning
 white >5 min and red >15 min, alarm bar + sound when a reading crosses a
 threshold (set thresholds in the menu to force it), snooze.
 
+## LED strip
+
+Menu → LED strip (works with the Fire's built-in bars: Pin = `15 internal`,
+LED count = 10, or an external strip on Port B/C):
+
+- **Test** runs the comet animation (red/amber/green/blue sweep + amber
+  flash); the same animation plays at power-on when the mode is not off.
+- Mode `sound`: Alarms → Test warning / Test alarm — the strip flashes
+  amber / red in sync with the tones.
+- Mode `alerts`: inject `bg 40` over serial — steady red (alarm) or amber
+  (warning) within a second; press B (snooze) — strip goes dark.
+- Mode `always on`: inject values across the thresholds — the strip follows
+  the display colour (green / amber / red), turns dim grey when the reading
+  goes stale (>15 min) and shows alerts like the `alerts` mode.
+- Brightness edits apply live (visible immediately in `always on` mode).
+
 ## xDrip4iOS (iOS)
 
 1. Menu → Data source → xDrip4iOS (device reboots).

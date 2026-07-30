@@ -33,6 +33,10 @@ void AppConfig::load() {
     rotation       = p.getUChar("rot", rotation);
     timeFormat24   = p.getUChar("tfmt", timeFormat24);
     dateFormatDMY  = p.getUChar("dfmt", dateFormatDMY);
+    ledMode        = p.getUChar("lmode", ledMode);
+    ledPin         = p.getUChar("lpin", ledPin);
+    ledCount       = p.getUChar("lcnt", ledCount);
+    ledBright      = p.getUChar("lbri", ledBright);
     tzOffsetSec    = p.getInt("tzof", tzOffsetSec);
     p.getString("blepwd", blePassword, sizeof(blePassword));
     if (p.getBytesLength("mbkey") == sizeof(mibandKey)) {
@@ -67,6 +71,10 @@ void AppConfig::save() {
   p.putUChar("rot", rotation);
   p.putUChar("tfmt", timeFormat24);
   p.putUChar("dfmt", dateFormatDMY);
+  p.putUChar("lmode", ledMode);
+  p.putUChar("lpin", ledPin);
+  p.putUChar("lcnt", ledCount);
+  p.putUChar("lbri", ledBright);
   p.putInt("tzof", tzOffsetSec);
   p.putString("blepwd", blePassword);
   if (mibandKeySet)

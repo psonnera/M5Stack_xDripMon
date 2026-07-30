@@ -1,6 +1,7 @@
 #include "Alarms.h"
 #include "AppConfig.h"
 #include "GlucoseState.h"
+#include "LedStrip.h"
 #include "Log.h"
 #include <M5Unified.h>
 
@@ -17,12 +18,16 @@ static void play_tone(uint16_t frequency, uint32_t duration, uint8_t volume) {
 void Alarms::sound(bool isAlarm) {
   if (isAlarm) {
     for (int j = 0; j < 6; j++) {           // NightscoutMon sndAlarm()
+      leds.flashFill(true);
       play_tone(660, 400, cfg.alarmVolume);
+      leds.flashClear();
       delay(200);
     }
   } else {
     for (int j = 0; j < 3; j++) {           // NightscoutMon sndWarning()
+      leds.flashFill(false);
       play_tone(3000, 100, cfg.warnVolume);
+      leds.flashClear();
       delay(300);
     }
   }
