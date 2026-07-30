@@ -2,6 +2,7 @@
 #include "AppConfig.h"
 #include "GlucoseState.h"
 #include "Alarms.h"
+#include "Log.h"
 #include <M5Unified.h>
 #include <Adafruit_NeoPixel.h>
 
@@ -63,6 +64,8 @@ void LedStrip::applyConfig() {
     pixels.updateLength(cfg.ledCount);
     pixels.begin();
   }
+  logDebug("led m%u p%u n%u %s", cfg.ledMode, cfg.ledPin, cfg.ledCount,
+           active ? "on" : "off");
   lastColor = 0xFFFFFFFF;
 }
 

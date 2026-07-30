@@ -34,6 +34,7 @@ void AppConfig::load() {
     rotation       = p.getUChar("rot", rotation);
     timeFormat24   = p.getUChar("tfmt", timeFormat24);
     dateFormatDMY  = p.getUChar("dfmt", dateFormatDMY);
+    debugLog       = p.getUChar("dbg", debugLog);
     ledMode        = p.getUChar("lmode", ledMode);
     ledPin         = p.getUChar("lpin", ledPin);
     ledCount       = p.getUChar("lcnt", ledCount);
@@ -76,6 +77,7 @@ void AppConfig::save() {
   chk(p.putUChar("rot", rotation));
   chk(p.putUChar("tfmt", timeFormat24));
   chk(p.putUChar("dfmt", dateFormatDMY));
+  chk(p.putUChar("dbg", debugLog));
   chk(p.putUChar("lmode", ledMode));
   chk(p.putUChar("lpin", ledPin));
   chk(p.putUChar("lcnt", ledCount));
@@ -92,6 +94,8 @@ void AppConfig::save() {
   p.end();
   if (failed)
     logAdd("config save FAILED (%d keys)", failed);
+  else
+    logDebug("cfg saved");
 }
 
 void AppConfig::factoryReset() {

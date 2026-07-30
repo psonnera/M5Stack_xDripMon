@@ -8,6 +8,9 @@
 
 // add a line to the on-device log page (also mirrored to Serial)
 void logAdd(const char *fmt, ...);
+// like logAdd, but only when cfg.debugLog is enabled (menu: Debug log);
+// entries are prefixed with '~' to stand out from normal ones
+void logDebug(const char *fmt, ...);
 
 struct LogEntry {
   uint32_t ms;                 // millis() when logged

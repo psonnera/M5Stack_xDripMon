@@ -1,5 +1,6 @@
 #include "Menu.h"
 #include "AppConfig.h"
+#include "Log.h"
 #include "GlucoseState.h"
 #include "TimeService.h"
 #include "Alarms.h"
@@ -8,6 +9,7 @@
 #include <M5Unified.h>
 #include <Preferences.h>
 #include <NimBLEDevice.h>
+#include <nvs_flash.h>
 #include "Free_Fonts.h"
 
 Menu menu;
@@ -22,7 +24,7 @@ extern "C" {
 
 // item ids per screen
 enum : uint8_t {
-  R_SOURCE, R_UNITS, R_THRESH, R_ALARMS, R_DISPLAY, R_LED, R_TIME, R_BLUETOOTH, R_FACTORY, R_EXIT, R_COUNT,
+  R_SOURCE, R_UNITS, R_THRESH, R_ALARMS, R_DISPLAY, R_LED, R_TIME, R_BLUETOOTH, R_DEBUG, R_FACTORY, R_EXIT, R_COUNT,
   T_YLOW = 0, T_YHIGH, T_RLOW, T_RHIGH, T_BACK, T_COUNT,
   A_ENABLED = 0, A_WLOW, A_ALOW, A_WHIGH, A_AHIGH, A_NOREAD, A_WVOL, A_AVOL,
   A_REPEAT, A_SNOOZE, A_TESTW, A_TESTA, A_BACK, A_COUNT,
@@ -93,6 +95,7 @@ const char *Menu::itemLabel(int idx) const {
         case R_LED:       return "LED strip";
         case R_TIME:      return "Set time";
         case R_BLUETOOTH: return "Bluetooth";
+        case R_DEBUG:     return "Debug log";
         case R_FACTORY:   return "Factory reset";
         case R_EXIT:      return "< Exit";
       }
@@ -158,7 +161,7 @@ const char *Menu::itemLabel(int idx) const {
 
 bool Menu::itemEditable(int idx) const {
   switch (screen) {
-    case ROOT:       return idx == R_SOURCE || idx == R_UNITS;
+    case ROOT:       return idx == R_SOURCE || idx == R_UNITS || idx == R_DEBUG;
     case THRESHOLDS: return idx != T_BACK;
     case ALARMS_S:   return idx < A_TESTW;
     case DISPLAY_S:  return idx != D_BACK;
@@ -175,6 +178,8 @@ void Menu::valueString(int idx, char *out, size_t len) const {
         strlcpy(out, cfg.source == SRC_MIBAND ? "xDrip (Android)" : "xDrip4iOS", len);
       else if (idx == R_UNITS)
         strlcpy(out, cfg.isMgdl() ? "mg/dL" : "mmol/L", len);
+      else if (idx == R_DEBUG)
+        strlcpy(out, cfg.debugLog ? "on" : "off", len);
       break;
     case THRESHOLDS:
       switch (idx) {
@@ -331,6 +336,9 @@ void Menu::applyEdit(int dir) {
       } else if (cursor == R_UNITS) {
         cfg.units = cfg.isMgdl() ? UNITS_MMOL : UNITS_MGDL;
         gs.dataChanged = true;
+      } else if (cursor == R_DEBUG) {
+        cfg.debugLog = !cfg.debugLog;
+        logDebug("debug log on");   // no-op when just turned off
       }
       break;
     case THRESHOLDS: {
@@ -448,7 +456,7 @@ void Menu::select() {
   // or power cut with the menu still open must not lose confirmed edits
   if (editing) { editing = false; cfg.save(); draw(); return; }
   if (itemEditable(cursor)) {
-    if (screen == ROOT && (cursor == R_SOURCE || cursor == R_UNITS)) {
+    if (screen == ROOT && (cursor == R_SOURCE || cursor == R_UNITS || cursor == R_DEBUG)) {
       applyEdit(1);            // simple toggles - no edit mode needed
       cfg.save();
     } else if (screen == ALARMS_S && cursor == A_ENABLED) {
@@ -484,13 +492,20 @@ void Menu::select() {
           screen = TIME_S;
         } break;
         case R_FACTORY:
-          cfg.factoryReset();
+          cfg.factoryReset();          // in-RAM defaults + clears our namespace
           {
             Preferences p;
             p.begin("xdriphist", false);
             p.clear();
             p.end();
           }
+          // no pairing memory may survive a factory reset: drop any BLE bonds
+          // the stack may have stored, then wipe the whole NVS partition so
+          // nothing persisted (ours or the BLE stack's) is left behind. The
+          // device reboots right after; NVS is re-initialized empty at boot.
+          NimBLEDevice::deleteAllBonds();
+          nvs_flash_deinit();
+          nvs_flash_erase();
           factoryResetPending = true;
           rebootNeeded = true;
           close();

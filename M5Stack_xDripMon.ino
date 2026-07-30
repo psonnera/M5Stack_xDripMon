@@ -11,9 +11,34 @@
      add it in the app under Bluetooth devices (type M5Stack).
 
   Hardware: M5Stack Basic 2.6/2.7, Fire, Core2 (16 MB flash).
-  Libraries: M5Unified, NimBLE-Arduino 2.x.
+  Libraries: M5Unified/M5GFX (MIT), NimBLE-Arduino (Apache-2.0),
+             Adafruit NeoPixel (LGPL-3.0), mbedTLS via ESP-IDF (Apache-2.0).
 
-  GPL v3, based on GPL v3 sources.
+  Copyright (C) 2023-2026 Patrick Sonnerat
+  License: GNU General Public License v3 (see LICENSE).
+
+  Derived from and referencing other GPL v3 works:
+   - M5_NightscoutMon, Copyright (C) Martin Lukasek <martin@lukasek.cz>:
+     on-screen UI (main/big/clock/log pages, Ui.cpp), LED strip handling
+     (LedStrip.cpp), and its xDrip4iOS fork by Johan Degraeve for the
+     "M5Stack" BLE protocol (BleXdrip4iOS.cpp). The analog clock face
+     originates from Bodmer's TFT_eSPI TFT_Clock example (via NightscoutMon).
+   - xDrip+ (Nightscout Foundation): Mi Band 2 protocol UUIDs, auth flow and
+     time message layout (BleMiBand.cpp, from watch/miband/*.java, itself
+     based on Gadgetbridge), slope-arrow characters (GlucoseState.cpp) and
+     the settings-QR payload format (Ui.cpp).
+   - xdripswift / xDrip4iOS, Copyright (C) Johan Degraeve: counterpart of
+     the M5Stack protocol opcodes (BleXdrip4iOS.cpp).
+   - iot_iconset_16x16.c, Copyright (C) Artur Funk, GPL v3 (unmodified
+     header kept in the file).
+   - Free_Fonts.h from Bodmer's TFT_eSPI examples (via M5_NightscoutMon);
+     the GFX FreeFonts derive from the GNU FreeFont project.
+
+  This program is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details: this is not a medical device;
+  never rely on it for treatment decisions.
 */
 
 #include <M5Unified.h>
@@ -29,7 +54,7 @@
 #include "Log.h"
 #include "Free_Fonts.h"
 
-#define XDRIPMON_VERSION "2.0.7"
+#define XDRIPMON_VERSION "2.0.9"
 
 static void startupLogo() {
   M5.Lcd.fillScreen(TFT_BLACK);

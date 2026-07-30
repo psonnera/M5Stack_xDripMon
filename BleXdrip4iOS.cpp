@@ -87,6 +87,7 @@ class CharCallbacks : public NimBLECharacteristicCallbacks {
       payload[n] = 0;
     }
     Serial.printf("[ios] opcode %02X len %u\n", opCode, (unsigned)len);
+    logDebug("rx %02X len %u", opCode, (unsigned)len);
 
     switch (opCode) {
       case 0x01:   // Nightscout URL - no Wi-Fi, consume and ignore
@@ -249,6 +250,7 @@ void xdrip4iosBegin() {
   adv->enableScanResponse(true);
   adv->start();
   Serial.println("[ios] advertising");
+  logDebug("adv started");
 }
 
 void xdrip4iosTick() {
@@ -257,12 +259,14 @@ void xdrip4iosTick() {
     delay(100);
     NimBLEDevice::getAdvertising()->start();
     Serial.println("[ios] advertising");
+    logDebug("adv restarted");
   }
   // ask the app for the time while we don't know it
   if (connected && authenticated && !timeService.known() &&
       millis() - lastTimeRequestMs > 30000UL) {
     lastTimeRequestMs = millis();
     sendToClient("", 0x11);
+    logDebug("time requested");
   }
 
   // --- reconnection watchdog ---------------------------------------------
@@ -277,6 +281,7 @@ void xdrip4iosTick() {
       lastHeartbeatMs = now;
       sendToClient("", 0x21);
       Serial.println("[ios] heartbeat (stale data)");
+      logDebug("heartbeat sent");
     }
     // link looks dead: force a disconnect so we re-advertise for a clean reconnect
     if (stale > FORCE_RECONNECT_MS && server) {
@@ -293,6 +298,7 @@ void xdrip4iosTick() {
     if (!adv->isAdvertising()) {
       adv->start();
       Serial.println("[ios] advertising (re-armed)");
+      logDebug("adv re-armed");
     }
   }
 }

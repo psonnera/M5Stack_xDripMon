@@ -37,6 +37,9 @@ struct AppConfig {
   uint8_t  rotation        = 1;    // 1 = normal, 3 = upside down
   uint8_t  timeFormat24    = 1;    // 1 = 24h, 0 = 12h am/pm
   uint8_t  dateFormatDMY   = 1;    // 1 = d.m., 0 = m/d
+  // mirror verbose debug events onto the log page (logDebug), for field
+  // debugging without a serial console
+  uint8_t  debugLog        = 0;
   // external RGB LED strip (or the Fire's built-in bar), see LedStrip.h
   uint8_t  ledMode         = 0;    // 0 off, 1 sound flash, 2 alerts, 3 always on
   uint8_t  ledPin          = 15;   // 15 = Fire internal, 26 = Port B, 17 = Port C

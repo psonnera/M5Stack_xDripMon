@@ -57,6 +57,7 @@ static void startAdvertising() {
   NimBLEAdvertising *adv = NimBLEDevice::getAdvertising();
   adv->start();
   Serial.println("[miband] advertising");
+  logDebug("advertising");
 }
 
 // ---------------------------------------------------------------- battery
@@ -84,6 +85,7 @@ class AuthCallbacks : public NimBLECharacteristicCallbacks {
     size_t len = v.length();
     if (len < 2) return;
     Serial.printf("[miband] auth write op=%02X len=%u\n", d[0], (unsigned)len);
+    logDebug("auth op %02X", d[0]);
 
     if (d[0] == AUTH_SEND_KEY && len >= 18) {
       // xDrip hands us the 16-byte AES key
@@ -184,6 +186,7 @@ class NewAlertCallbacks : public NimBLECharacteristicCallbacks {
     while (n && text[n - 1] == ' ') n--;
     text[n] = 0;
     Serial.printf("[miband] alert text: '%s'\n", text);
+    logDebug("alert: %.24s", text);
     if (!parseBgText(text, n) && n > 0) {
       ui.setStatusMessage(text);   // non-BG notification from xDrip
       logAdd("msg: %.30s", text);
@@ -228,6 +231,7 @@ class CurrentTimeCallbacks : public NimBLECharacteristicCallbacks {
     Serial.printf("[miband] current time write, %u bytes:", (unsigned)len);
     for (size_t i = 0; i < len; i++) Serial.printf(" %02X", d[i]);
     Serial.println();
+    logDebug("time write %uB", (unsigned)len);
     if (len < 7) return;
     int year = d[0] | (d[1] << 8);
     int month = d[2], day = d[3], hour = d[4], minute = d[5], second = d[6];

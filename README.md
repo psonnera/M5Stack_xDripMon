@@ -64,9 +64,11 @@ in *Menu → LED strip*:
   alarm is active, dark otherwise; snooze turns it off), `always on`
   (alerts, plus the glucose colour when in range: green / amber / red
   following the colour thresholds, dim grey when the data is stale).
-- **Pin** — `15 internal` (Fire's built-in bars; Fire only), `26 Port B`
-  or `17 Port C` for an external strip. Port A is not offered — it is the
-  I2C bus (GPIO 21/22).
+- **Pin** — `15 internal` (Fire's built-in bars; Fire only), `21 Port A`
+  (`32 Port A` on Core2), `26 Port B` or `17 Port C` for an external strip.
+  Port A is the only Grove port on a Basic without an M5GO bottom; on
+  Basic/Fire it shares GPIO 21 with the internal I2C bus, which is fine for
+  the strip but rules out using an I2C unit on Port A at the same time.
 - **LED count** — 10 for the Fire bars; typical strips: 15 = 10 cm,
   29 = 20 cm, 72 = 50 cm, 144 = 100 cm.
 - **Brightness** — 5–100 %. Keep 5–10 % for more than 10 LEDs or power the
@@ -76,7 +78,8 @@ in *Menu → LED strip*:
   shown at power-on whenever the mode is not off).
 
 Wiring an external strip: GND and 5 V from the Grove port, data to the
-port's signal pin (Port B = GPIO 26, Port C = GPIO 17).
+port's signal pin (Port A = GPIO 21, or 32 on Core2; Port B = GPIO 26;
+Port C = GPIO 17).
 
 ## Building
 
@@ -91,7 +94,38 @@ v1 emulated a LeFun band and was abandoned due to Bluedroid Bluetooth-stack
 issues (readings only every 10 minutes). v2 is a complete rewrite on NimBLE
 with a different xDrip transport. (The v1 sources remain in git history.)
 
-## License
+## License & credits
 
-GPL v3. UI ported from M5_NightscoutMon (Martin Lukasek, GPL v3); protocol
-reference from xDrip and xdripswift (GPL v3).
+Copyright © 2023-2026 Patrick Sonnerat, released under the
+**[GNU GPL v3](LICENSE)**. Not a medical device — never rely on it for
+treatment decisions.
+
+This firmware reuses and derives from other free-software projects:
+
+- **[M5_NightscoutMon](https://github.com/mlukasek/M5_NightscoutMon)**
+  (Martin Lukasek, GPL v3) — the on-screen interface (main, big-glucose,
+  analog-clock and log pages) and the RGB LED strip handling are ported from
+  it; its **[xDrip4iOS fork](https://github.com/JohanDegraeve/M5_NightscoutMon)**
+  (Johan Degraeve) is the source of the "M5Stack" BLE protocol
+  implementation. The analog clock face originates from Bodmer's TFT_eSPI
+  *TFT_Clock* example, via NightscoutMon.
+- **[xDrip+](https://github.com/NightscoutFoundation/xDrip)** (Nightscout
+  Foundation, GPL v3) — the Mi Band 2 emulation (service/characteristic
+  UUIDs, authentication flow, time message layout — itself based on
+  [Gadgetbridge](https://codeberg.org/Freeyourgadget/Gadgetbridge)), the
+  slope-arrow character mapping and the settings-QR payload format.
+- **[xdripswift / xDrip4iOS](https://github.com/JohanDegraeve/xdripswift)**
+  (Johan Degraeve, GPL v3) — counterpart reference for the M5Stack protocol
+  opcodes.
+- **`iot_iconset_16x16.c`** — "IoT Icon Set 16x16" by Artur Funk, GPL v3
+  (original license header kept in the file).
+- **`Free_Fonts.h`** — from Bodmer's
+  [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) examples (via
+  M5_NightscoutMon); the GFX FreeFonts it references derive from the GNU
+  FreeFont project.
+
+Libraries used (installed separately, not bundled):
+[M5Unified / M5GFX](https://github.com/m5stack/M5Unified) (MIT),
+[NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino) (Apache-2.0),
+[Adafruit NeoPixel](https://github.com/adafruit/Adafruit_NeoPixel)
+(LGPL-3.0), mbedTLS via ESP-IDF (Apache-2.0).

@@ -1,4 +1,5 @@
 #include "Log.h"
+#include "AppConfig.h"
 #include <stdarg.h>
 #include <time.h>
 
@@ -23,6 +24,16 @@ void logAdd(const char *fmt, ...) {
 
   Serial.print("[log] ");
   Serial.println(e.text);
+}
+
+void logDebug(const char *fmt, ...) {
+  if (!cfg.debugLog) return;
+  char buf[LOG_LINE_LEN];
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, args);
+  va_end(args);
+  logAdd("~%s", buf);
 }
 
 const LogEntry *logGet(int idx) {

@@ -1,3 +1,23 @@
+M5Stack xDripMon v2.0.9 (2026-07-30)
+
+- Factory reset now wipes the entire settings flash partition, including
+  any Bluetooth pairing memory (iOS password, Mi Band key, and any bonds
+  stored by the Bluetooth stack) and the glucose history. After the
+  automatic restart the device is exactly as freshly flashed: it asks for
+  the data source and pairs from scratch. Remember to also delete the
+  device in the phone app, otherwise the app re-pairs automatically with
+  its old settings on the next connection.
+
+M5Stack xDripMon v2.0.8 (2026-07-30)
+
+- Debug log switch (Settings -> Debug log, off by default). When on, the
+  log page additionally shows internal events, each prefixed with "~":
+  Bluetooth advertising starts/restarts, every packet received from the
+  phone, Mi Band authentication steps and notification texts, config
+  saves, and LED strip reconfigurations. Meant for troubleshooting
+  connection problems in the field without a serial console; leave it
+  off in normal use. The setting survives reboots.
+
 M5Stack xDripMon v2.0.7 (2026-07-30)
 
 - LED strip can now use Grove Port A: the pin setting cycles through
