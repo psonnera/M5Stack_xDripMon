@@ -55,7 +55,7 @@
 #include "Log.h"
 #include "Free_Fonts.h"
 
-#define XDRIPMON_VERSION "2.0.9"
+#define XDRIPMON_VERSION "2.0.10"
 
 static void startupLogo() {
   M5.Lcd.fillScreen(TFT_BLACK);

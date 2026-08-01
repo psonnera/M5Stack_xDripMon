@@ -1,3 +1,14 @@
+M5Stack xDripMon v2.0.10 (2026-08-01)
+
+- Fixed the displayed time being off by the timezone offset (clock, log
+  page and reading times showed UTC). The timezone string handed to the
+  system used a 2-letter zone name, which the ESP32 C library silently
+  rejects (POSIX requires at least 3 letters), so the display stayed on
+  UTC even though xDrip4iOS had sent the correct time and offset. The
+  stored clock itself was always correct UTC; only the on-screen
+  conversion was wrong. Also fixed a lost minus sign for (theoretical)
+  negative half-hour timezones.
+
 M5Stack xDripMon v2.0.9 (2026-07-30)
 
 - Factory reset now wipes the entire settings flash partition, including

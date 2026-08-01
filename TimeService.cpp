@@ -17,15 +17,19 @@ static time_t epochFromUtcTm(struct tm &t) {
 }
 
 void TimeService::applyTz(int32_t tzSec) {
-  // POSIX TZ sign is inverted: UTC+2 -> "LT-2"
+  // POSIX TZ sign is inverted: UTC+2 -> "LOC-2". The zone name needs at
+  // least 3 alphabetic chars or newlib's tzset() rejects the whole string
+  // and silently stays on UTC (TZNAME_MIN in newlib tzset_r.c).
   char tz[24];
   int32_t off = -tzSec;
-  int h = off / 3600;
-  int m = abs((int)(off % 3600)) / 60;
+  char sign = (off < 0) ? '-' : '+';
+  uint32_t a = (off < 0) ? (uint32_t)-off : (uint32_t)off;
+  unsigned h = a / 3600;
+  unsigned m = (a % 3600) / 60;
   if (m)
-    snprintf(tz, sizeof(tz), "LT%+d:%02d", h, m);
+    snprintf(tz, sizeof(tz), "LOC%c%u:%02u", sign, h, m);
   else
-    snprintf(tz, sizeof(tz), "LT%+d", h);
+    snprintf(tz, sizeof(tz), "LOC%c%u", sign, h);
   setenv("TZ", tz, 1);
   tzset();
   cfg.tzOffsetSec = tzSec;
